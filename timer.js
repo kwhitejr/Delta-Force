@@ -1,14 +1,27 @@
 var EventEmitter = require('events');
 
+module.exports = Timer;
+
 function Timer () {
 
   EventEmitter.call(this);
 
   var self = this;
+  var i = 0;
 
-  setInterval(function () {
-    self.emit('tick');
-  }, 1000);
+  var startTick;
+
+  this.start = function() {
+    startTick = setInterval(function () {
+      self.emit('tick', { interval: i++ });
+    }, 1000);
+    self.emit('start');
+  };
+
+  this.stop = function() {
+    self.emit('stop');
+    clearInterval(startTick);
+  };
 }
 
 Timer.prototype = new Object(EventEmitter.prototype, {
@@ -20,7 +33,5 @@ Timer.prototype = new Object(EventEmitter.prototype, {
   }
 });
 
-var myTimer = new Timer();
-myTimer.addListener('tick', function() {
-  process.stdout.write('TICK \n');
-});
+// alternate for node: util.inherits(Timer, EventEmitter);
+
