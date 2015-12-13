@@ -2,25 +2,29 @@ var EventEmitter = require('events');
 
 module.exports = Timer;
 
-function Timer () {
+function Timer (maxTime) {
 
   EventEmitter.call(this);
 
   var self = this;
   var i = 0;
+  var max = maxTime || 10;
 
   var startTick;
+  var startTime;
 
   this.start = function() {
+    startTime = Date.now();
     startTick = setInterval(function () {
-      self.emit('tick', { interval: i++ });
+      self.emit('tick', { interval: i++, maxTime: max});
     }, 1000);
-    self.emit('start');
+    self.emit('start', { startTime: Date.now() });
+
   };
 
   this.stop = function() {
-    self.emit('stop');
-    clearInterval(startTick);
+    self.emit('stop', { interval: i, startTick: startTick, endTime: Date.now() });
+    self.emit('complete', { endTime: Date.now(), startTime: startTime });
   };
 }
 
