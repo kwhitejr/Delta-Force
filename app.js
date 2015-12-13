@@ -2,9 +2,12 @@ var Timer = require('./timer');
 var myTimer = new Timer();
 
 myTimer.addListener('tick', function(event) {
-  process.stdout.write('TICK \n');
+  process.stdout.write('TICK ' + event.interval + '\n');
   if (event.interval === event.maxTime-1) {
-    myTimer.stop();
+    myTimer.complete();
+  }
+  if (event.lagTime >= event.maxDev) {
+    myTimer.lag();
   }
 });
 
@@ -15,14 +18,17 @@ myTimer.addListener('start', function(event) {
 myTimer.addListener('stop', function(event) {
   console.log("Timer was stopped.");
   console.log({EndTime: event.endTime, ticks: event.interval});
-  clearInterval(event.startTick);
 });
 
 myTimer.addListener('complete', function(event) {
-  console.log("Timer is complete.");
-  console.log("Total Time: ");
-  console.log(event.endTime - event.startTime)
+  myTimer.stop();
+  console.log("Stop Time: ", event.endTime);
+  console.log("Total Time: ", event.endTime - event.startTime);
+  console.log("Total Lag: ", event.lagTime);
+});
 
+myTimer.addListener('lag', function(event) {
+  console.log({Lagging: event.lagTime});
 });
 
 myTimer.start();
